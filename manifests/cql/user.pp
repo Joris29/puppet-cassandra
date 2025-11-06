@@ -1,7 +1,7 @@
 # @summary A defined type to create or drop a user.
 #
 # @example Basic usage.
-#   cassandra::schema::user { 'akers':
+#   cassandra::cql::user { 'akers':
 #     password  => 'Niner2',
 #     superuser => true,
 #   }
@@ -17,19 +17,19 @@
 # @param superuser
 #   Whether the user should be a super user.
 #
-define cassandra::schema::user (
+define cassandra::cql::user (
   Enum['present', 'absent'] $ensure = present,
   String[1] $user_name = $title,
   Optional[Variant[String[1], Sensitive]] $password = undef,
   Boolean $login = true,
   Boolean $superuser = false,
 ) {
-  require cassandra::schema
+  require cassandra::cql
 
   $quote = '"'
   $read_script = 'LIST ROLES'
   $str_match = '\s'
-  $read_command = "${cassandra::schema::cqlsh_opts} -e ${quote}${read_script}${quote} ${cassandra::schema::cqlsh_conn} | grep '${str_match}*${user_name} |'"
+  $read_command = "${cassandra::cql::cqlsh_opts} -e ${quote}${read_script}${quote} ${cassandra::cql::cqlsh_conn} | grep '${str_match}*${user_name} |'"
 
   if $ensure == present {
     $create_script1 = "CREATE ROLE IF NOT EXISTS ${user_name}"
@@ -61,19 +61,19 @@ define cassandra::schema::user (
       $create_script = $create_script3
     }
 
-    $create_command = "${cassandra::schema::cqlsh_opts} -e ${quote}${create_script}${quote} ${cassandra::schema::cqlsh_conn}"
+    $create_command = "${cassandra::cql::cqlsh_opts} -e ${quote}${create_script}${quote} ${cassandra::cql::cqlsh_conn}"
     exec { "Create user (${user_name})":
       command => $create_command,
       unless  => $read_command,
-      require => Exec['cassandra::schema connection test'],
+      require => Exec['cassandra::cql connection test'],
     }
   } else {
     $delete_script = "DROP ROLE ${user_name}"
-    $delete_command = "${cassandra::schema::cqlsh_opts} -e ${quote}${delete_script}${quote} ${cassandra::schema::cqlsh_conn}"
+    $delete_command = "${cassandra::cql::cqlsh_opts} -e ${quote}${delete_script}${quote} ${cassandra::cql::cqlsh_conn}"
     exec { "Delete user (${user_name})":
       command => $delete_command,
       onlyif  => $read_command,
-      require => Exec['cassandra::schema connection test'],
+      require => Exec['cassandra::cql connection test'],
     }
   }
 }

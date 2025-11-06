@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'cassandra::schema::permission' do
+describe 'cassandra::cql::permission' do
   on_supported_os.each do |os, facts|
     context "on #{os}" do
       let(:facts) do
@@ -48,11 +48,11 @@ describe 'cassandra::schema::permission' do
 
         it do
           is_expected.to compile.with_all_deps
-          is_expected.to contain_class('cassandra::schema')
+          is_expected.to contain_class('cassandra::cql')
           is_expected.to contain_exec(script_command).with(
             command: exec_command,
             unless: read_script,
-            require: 'Exec[cassandra::schema connection test]'
+            require: 'Exec[cassandra::cql connection test]'
           )
         end
       end
@@ -78,7 +78,7 @@ describe 'cassandra::schema::permission' do
           is_expected.to contain_exec(script_command).with(
             command: exec_command,
             unless: read_script,
-            require: 'Exec[cassandra::schema connection test]'
+            require: 'Exec[cassandra::cql connection test]'
           )
         end
       end
@@ -104,7 +104,7 @@ describe 'cassandra::schema::permission' do
           is_expected.to contain_exec(script_command).with(
             command: exec_command,
             unless: read_script,
-            require: 'Exec[cassandra::schema connection test]'
+            require: 'Exec[cassandra::cql connection test]'
           )
         end
       end
@@ -129,7 +129,7 @@ describe 'cassandra::schema::permission' do
 
           it do
             is_expected.to compile.with_all_deps
-            is_expected.to contain_cassandra__schema__permission("boone:ALL:ravens.plays - #{val}").with(
+            is_expected.to contain_cassandra__cql__permission("boone:ALL:ravens.plays - #{val}").with(
               ensure: 'present',
               user_name: 'boone',
               keyspace_name: 'ravens',
@@ -139,7 +139,7 @@ describe 'cassandra::schema::permission' do
             is_expected.to contain_exec(script_command).with(
               command: exec_command,
               unless: read_script,
-              require: 'Exec[cassandra::schema connection test]'
+              require: 'Exec[cassandra::cql connection test]'
             )
           end
         end
@@ -167,7 +167,7 @@ describe 'cassandra::schema::permission' do
           is_expected.to contain_exec(script_command).with(
             command: exec_command,
             onlyif: read_script,
-            require: 'Exec[cassandra::schema connection test]'
+            require: 'Exec[cassandra::cql connection test]'
           )
         end
       end

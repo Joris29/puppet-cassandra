@@ -40,7 +40,7 @@ class { 'cassandra':
   service_ensure         => running,
 }
 
-class { 'cassandra::schema':
+class { 'cassandra::cql':
   cqlsh_password => 'cassandra',
   cqlsh_user     => 'cassandra',
   cqlsh_host     => $facts['networking']['ip'],

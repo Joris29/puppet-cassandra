@@ -15,7 +15,7 @@
 # @param options
 #   Any options to be added to the index.
 #
-define cassandra::schema::index (
+define cassandra::cql::index (
   String[1] $keyspace,
   String[1] $table,
   Enum['present', 'absent'] $ensure = present,
@@ -24,7 +24,7 @@ define cassandra::schema::index (
   Optional[String[1]] $keys = undef,
   Optional[String[1]] $options = undef,
 ) {
-  require cassandra::schema
+  require cassandra::cql
 
   $quote = '"'
   # Fully qualified index name.
@@ -33,7 +33,7 @@ define cassandra::schema::index (
   $fqtn = "${keyspace}.${table}"
 
   $read_script = "DESC INDEX ${fqin}"
-  $read_command = "${cassandra::schema::cqlsh_opts} -e ${quote}${read_script}${quote} ${cassandra::schema::cqlsh_conn}"
+  $read_command = "${cassandra::cql::cqlsh_opts} -e ${quote}${read_script}${quote} ${cassandra::cql::cqlsh_conn}"
 
   if $ensure == present {
     if $class_name != undef {
@@ -54,18 +54,18 @@ define cassandra::schema::index (
       $create_script = $create_part2
     }
 
-    $create_command = "${cassandra::schema::cqlsh_opts} -e ${quote}${create_script}${quote} ${cassandra::schema::cqlsh_conn}"
+    $create_command = "${cassandra::cql::cqlsh_opts} -e ${quote}${create_script}${quote} ${cassandra::cql::cqlsh_conn}"
 
     exec { $create_command:
       unless  => $read_command,
-      require => Exec['cassandra::schema connection test'],
+      require => Exec['cassandra::cql connection test'],
     }
   } else {
     $delete_script = "DROP INDEX ${fqin}"
-    $delete_command = "${cassandra::schema::cqlsh_opts} -e ${quote}${delete_script}${quote} ${cassandra::schema::cqlsh_conn}"
+    $delete_command = "${cassandra::cql::cqlsh_opts} -e ${quote}${delete_script}${quote} ${cassandra::cql::cqlsh_conn}"
     exec { $delete_command:
       onlyif  => $read_command,
-      require => Exec['cassandra::schema connection test'],
+      require => Exec['cassandra::cql connection test'],
     }
   }
 }

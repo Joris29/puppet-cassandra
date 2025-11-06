@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'cassandra::schema::cql_type' do
+describe 'cassandra::cql::cql_type' do
   on_supported_os.each do |os, facts|
     context "on #{os}" do
       let(:facts) do
@@ -27,10 +27,10 @@ describe 'cassandra::schema::cql_type' do
 
         it do
           is_expected.to compile.with_all_deps
-          is_expected.to contain_class('cassandra::schema')
+          is_expected.to contain_class('cassandra::cql')
           is_expected.to contain_exec(exec_command).with(
             unless: read_command,
-            require: 'Exec[cassandra::schema connection test]'
+            require: 'Exec[cassandra::cql connection test]'
           )
         end
       end
@@ -51,7 +51,7 @@ describe 'cassandra::schema::cql_type' do
           is_expected.to compile.with_all_deps
           is_expected.to contain_exec(exec_command).with(
             onlyif: read_command,
-            require: 'Exec[cassandra::schema connection test]'
+            require: 'Exec[cassandra::cql connection test]'
           )
         end
       end

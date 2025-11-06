@@ -1,7 +1,7 @@
 # @summary A defined type to create or drop a table.
 #
 # @example Basic usage.
-#   cassandra::schema::table { 'users':
+#   cassandra::cql::table { 'users':
 #     keyspace => 'mykeyspace',
 #     columns  => {
 #       'userid'      => 'int',
@@ -22,18 +22,18 @@
 # @param table
 #   The name of the table.
 #
-define cassandra::schema::table (
+define cassandra::cql::table (
   String[1] $keyspace,
   Enum['present', 'absent'] $ensure = present,
   Hash $columns = {},
   Array $options = [],
   String[1] $table = $title,
 ) {
-  require cassandra::schema
+  require cassandra::cql
 
   $quote = '"'
   $read_script = "DESC TABLE ${keyspace}.${table}"
-  $read_command = "${cassandra::schema::cqlsh_opts} -e ${quote}${read_script}${quote} ${cassandra::schema::cqlsh_conn}"
+  $read_command = "${cassandra::cql::cqlsh_opts} -e ${quote}${read_script}${quote} ${cassandra::cql::cqlsh_conn}"
 
   if $ensure == present {
     $create_script1 = "CREATE TABLE IF NOT EXISTS ${keyspace}.${table}"
@@ -47,17 +47,17 @@ define cassandra::schema::table (
       $create_script = "${create_script1} (${cols_def_rm_collection_type})"
     }
 
-    $create_command = "${cassandra::schema::cqlsh_opts} -e ${quote}${create_script}${quote} ${cassandra::schema::cqlsh_conn}"
+    $create_command = "${cassandra::cql::cqlsh_opts} -e ${quote}${create_script}${quote} ${cassandra::cql::cqlsh_conn}"
     exec { $create_command:
       unless  => $read_command,
-      require => Exec['cassandra::schema connection test'],
+      require => Exec['cassandra::cql connection test'],
     }
   } else {
     $delete_script = "DROP TABLE IF EXISTS ${keyspace}.${table}"
-    $delete_command = "${cassandra::schema::cqlsh_opts} -e ${quote}${delete_script}${quote} ${cassandra::schema::cqlsh_conn}"
+    $delete_command = "${cassandra::cql::cqlsh_opts} -e ${quote}${delete_script}${quote} ${cassandra::cql::cqlsh_conn}"
     exec { $delete_command:
       onlyif  => $read_command,
-      require => Exec['cassandra::schema connection test'],
+      require => Exec['cassandra::cql connection test'],
     }
   }
 }

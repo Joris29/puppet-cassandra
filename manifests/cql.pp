@@ -1,5 +1,5 @@
-# @summary Class to manage database schema resources.
-#   Please note that cqlsh expects Python to be installed.
+# @summary Class to manage database cql resources.
+#   Please note that Python is expected to be installed.
 #
 # @param connection_tries
 #   How many times to try a connection to Cassandra. Also see `connection_try_sleep`.
@@ -23,19 +23,19 @@
 # @param cqlsh_password
 #   The password for the cqlsh connection.
 # @param cql_types
-#   Creates new `cassandra::schema::cql_type` resources.
+#   Creates new `cassandra::cql::cql_type` resources.
 # @param indexes
-#   Creates new `cassandra::schema::index` resources.
+#   Creates new `cassandra::cql::index` resources.
 # @param keyspaces
-#   Creates new `cassandra::schema::keyspace` resources.
+#   Creates new `cassandra::cql::keyspace` resources.
 # @param permissions
-#   Creates new `cassandra::schema::permission` resources.
+#   Creates new `cassandra::cql::permission` resources.
 # @param tables
-#   Creates new `cassandra::schema::table` resources.
+#   Creates new `cassandra::cql::table` resources.
 # @param users
-#   Creates new `cassandra::schema::user` resources.
+#   Creates new `cassandra::cql::user` resources.
 #
-class cassandra::schema (
+class cassandra::cql (
   Integer $connection_tries = 6,
   Integer $connection_try_sleep = 30,
   Optional[String[1]] $cqlsh_additional_options = undef,
@@ -62,7 +62,7 @@ class cassandra::schema (
       mode    => '0600',
       owner   => $facts['identity']['uid'],
       content => template($cqlsh_client_tmpl),
-      before  => Exec['cassandra::schema connection test'],
+      before  => Exec['cassandra::cql connection test'],
     }
 
     $cmdline_login = "--cqlshrc=${cqlsh_client_config}"
@@ -80,7 +80,7 @@ class cassandra::schema (
 
   $connection_test = "${cqlsh_opts} -e 'DESC KEYSPACES' ${cqlsh_conn}"
 
-  exec { 'cassandra::schema connection test':
+  exec { 'cassandra::cql connection test':
     command   => $connection_test,
     returns   => 0,
     tries     => $connection_tries,
@@ -90,41 +90,41 @@ class cassandra::schema (
 
   # manage keyspaces if present
   if $keyspaces {
-    create_resources('cassandra::schema::keyspace', $keyspaces)
+    create_resources('cassandra::cql::keyspace', $keyspaces)
   }
 
   # manage cql_types if present
   if $cql_types {
-    create_resources('cassandra::schema::cql_type', $cql_types)
+    create_resources('cassandra::cql::cql_type', $cql_types)
   }
 
   # manage tables if present
   if $tables {
-    create_resources('cassandra::schema::table', $tables)
+    create_resources('cassandra::cql::table', $tables)
   }
 
   # manage indexes if present
   if $indexes {
-    create_resources('cassandra::schema::index', $indexes)
+    create_resources('cassandra::cql::index', $indexes)
   }
 
   # manage users if present
   if $users {
-    create_resources('cassandra::schema::user', $users)
+    create_resources('cassandra::cql::user', $users)
   }
 
   # manage permissions if present
   if $permissions {
-    create_resources('cassandra::schema::permission', $permissions)
+    create_resources('cassandra::cql::permission', $permissions)
   }
 
   # Resource Ordering
-  Cassandra::Schema::Keyspace <| |> -> Cassandra::Schema::Cql_type <| |>
-  Cassandra::Schema::Keyspace <| |> -> Cassandra::Schema::Table <| |>
-  Cassandra::Schema::Keyspace <| |> -> Cassandra::Schema::Permission <| |>
-  Cassandra::Schema::Cql_type <| |> -> Cassandra::Schema::Table <| |>
-  Cassandra::Schema::Table <| |> -> Cassandra::Schema::Index <| |>
-  Cassandra::Schema::Table <| |> -> Cassandra::Schema::Permission <| |>
-  Cassandra::Schema::Index <| |> -> Cassandra::Schema::User <| |>
-  Cassandra::Schema::User <| |> -> Cassandra::Schema::Permission <| |>
+  Cassandra::Cql::Keyspace <| |> -> Cassandra::Cql::Cql_type <| |>
+  Cassandra::Cql::Keyspace <| |> -> Cassandra::Cql::Table <| |>
+  Cassandra::Cql::Keyspace <| |> -> Cassandra::Cql::Permission <| |>
+  Cassandra::Cql::Cql_type <| |> -> Cassandra::Cql::Table <| |>
+  Cassandra::Cql::Table <| |> -> Cassandra::Cql::Index <| |>
+  Cassandra::Cql::Table <| |> -> Cassandra::Cql::Permission <| |>
+  Cassandra::Cql::Index <| |> -> Cassandra::Cql::User <| |>
+  Cassandra::Cql::User <| |> -> Cassandra::Cql::Permission <| |>
 }

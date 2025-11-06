@@ -29,7 +29,7 @@
 #   The name of a table within the specified keyspace.
 #   If left unspecified, the procedure will be applied to all tables within the keyspace.
 #
-define cassandra::schema::permission (
+define cassandra::cql::permission (
   String[1] $user_name,
   Enum['present', 'absent'] $ensure = present,
   String[1] $keyspace_name = 'ALL',
@@ -44,7 +44,7 @@ define cassandra::schema::permission (
   ] $permission_name = 'ALL',
   Optional[String[1]] $table_name = undef,
 ) {
-  require cassandra::schema
+  require cassandra::cql
 
   $quote = '"'
   if upcase($keyspace_name) == 'ALL' and upcase($permission_name) == 'ALL' {
@@ -60,10 +60,10 @@ define cassandra::schema::permission (
   $read_script = "LIST ALL PERMISSIONS ON ${resource}"
   $upcase_permission_name = upcase($permission_name)
   $pattern = "\s${user_name} |\s*${user_name} |\s.*\s${upcase_permission_name}$"
-  $read_command = "${cassandra::schema::cqlsh_opts} -e ${quote}${read_script}${quote} ${cassandra::schema::cqlsh_conn} | grep '${pattern}'"
+  $read_command = "${cassandra::cql::cqlsh_opts} -e ${quote}${read_script}${quote} ${cassandra::cql::cqlsh_conn} | grep '${pattern}'"
 
   if upcase($permission_name) == 'ALL' {
-    cassandra::schema::permission { "${title} - ALTER":
+    cassandra::cql::permission { "${title} - ALTER":
       ensure          => $ensure,
       user_name       => $user_name,
       keyspace_name   => $keyspace_name,
@@ -71,7 +71,7 @@ define cassandra::schema::permission (
       table_name      => $table_name,
     }
 
-    cassandra::schema::permission { "${title} - AUTHORIZE":
+    cassandra::cql::permission { "${title} - AUTHORIZE":
       ensure          => $ensure,
       user_name       => $user_name,
       keyspace_name   => $keyspace_name,
@@ -81,7 +81,7 @@ define cassandra::schema::permission (
 
     # The CREATE permission is not relevant to tables.
     if !$table_name {
-      cassandra::schema::permission { "${title} - CREATE":
+      cassandra::cql::permission { "${title} - CREATE":
         ensure          => $ensure,
         user_name       => $user_name,
         keyspace_name   => $keyspace_name,
@@ -90,7 +90,7 @@ define cassandra::schema::permission (
       }
     }
 
-    cassandra::schema::permission { "${title} - DROP":
+    cassandra::cql::permission { "${title} - DROP":
       ensure          => $ensure,
       user_name       => $user_name,
       keyspace_name   => $keyspace_name,
@@ -98,7 +98,7 @@ define cassandra::schema::permission (
       table_name      => $table_name,
     }
 
-    cassandra::schema::permission { "${title} - MODIFY":
+    cassandra::cql::permission { "${title} - MODIFY":
       ensure          => $ensure,
       user_name       => $user_name,
       keyspace_name   => $keyspace_name,
@@ -106,7 +106,7 @@ define cassandra::schema::permission (
       table_name      => $table_name,
     }
 
-    cassandra::schema::permission { "${title} - SELECT":
+    cassandra::cql::permission { "${title} - SELECT":
       ensure          => $ensure,
       user_name       => $user_name,
       keyspace_name   => $keyspace_name,
@@ -115,21 +115,21 @@ define cassandra::schema::permission (
     }
   } elsif $ensure == present {
     $create_script = "GRANT ${permission_name} ON ${resource} TO ${user_name}"
-    $create_command = "${cassandra::schema::cqlsh_opts} -e ${quote}${create_script}${quote} ${cassandra::schema::cqlsh_conn}"
+    $create_command = "${cassandra::cql::cqlsh_opts} -e ${quote}${create_script}${quote} ${cassandra::cql::cqlsh_conn}"
 
     exec { $create_script:
       command => $create_command,
       unless  => $read_command,
-      require => Exec['cassandra::schema connection test'],
+      require => Exec['cassandra::cql connection test'],
     }
   } else {
     $delete_script = "REVOKE ${permission_name} ON ${resource} FROM ${user_name}"
-    $delete_command = "${cassandra::schema::cqlsh_opts} -e ${quote}${delete_script}${quote} ${cassandra::schema::cqlsh_conn}"
+    $delete_command = "${cassandra::cql::cqlsh_opts} -e ${quote}${delete_script}${quote} ${cassandra::cql::cqlsh_conn}"
 
     exec { $delete_script:
       command => $delete_command,
       onlyif  => $read_command,
-      require => Exec['cassandra::schema connection test'],
+      require => Exec['cassandra::cql connection test'],
     }
   }
 }

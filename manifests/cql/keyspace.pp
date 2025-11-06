@@ -1,7 +1,7 @@
 # @summary A defined type to create or drop a keyspace.
 #
 # @example Basic usage.
-#   cassandra::schema::keyspace { 'mykeyspace':
+#   cassandra::cql::keyspace { 'mykeyspace':
 #     replication_map => {
 #       keyspace_class     => 'SimpleStrategy',
 #       replication_factor => 1,
@@ -20,17 +20,17 @@
 # @param replication_map
 #   Needed if the keyspace is to be present. Optional if it is to be absent.
 #
-define cassandra::schema::keyspace (
+define cassandra::cql::keyspace (
   Enum['present', 'absent'] $ensure = present,
   Boolean $durable_writes = true,
   String[1] $keyspace_name = $title,
   Hash $replication_map = {},
 ) {
-  require cassandra::schema
+  require cassandra::cql
 
   $quote = '"'
   $read_script = "DESC KEYSPACE ${keyspace_name}"
-  $read_command = "${cassandra::schema::cqlsh_opts} -e ${quote}${read_script}${quote} ${cassandra::schema::cqlsh_conn}"
+  $read_command = "${cassandra::cql::cqlsh_opts} -e ${quote}${read_script}${quote} ${cassandra::cql::cqlsh_conn}"
 
   if $ensure == present {
     $keyspace_class = $replication_map[keyspace_class]
@@ -57,17 +57,17 @@ define cassandra::schema::keyspace (
     $create_script2 = "WITH REPLICATION = ${map_str}"
     $create_script3 = "AND DURABLE_WRITES = ${durable_writes}"
     $create_script = "${create_script1} ${create_script2} ${create_script3}"
-    $create_command = "${cassandra::schema::cqlsh_opts} -e ${quote}${create_script}${quote} ${cassandra::schema::cqlsh_conn}"
+    $create_command = "${cassandra::cql::cqlsh_opts} -e ${quote}${create_script}${quote} ${cassandra::cql::cqlsh_conn}"
     exec { $create_command:
       unless  => $read_command,
-      require => Exec['cassandra::schema connection test'],
+      require => Exec['cassandra::cql connection test'],
     }
   } else {
     $delete_script = "DROP KEYSPACE ${keyspace_name}"
-    $delete_command = "${cassandra::schema::cqlsh_opts} -e ${quote}${delete_script}${quote} ${cassandra::schema::cqlsh_conn}"
+    $delete_command = "${cassandra::cql::cqlsh_opts} -e ${quote}${delete_script}${quote} ${cassandra::cql::cqlsh_conn}"
     exec { $delete_command:
       onlyif  => $read_command,
-      require => Exec['cassandra::schema connection test'],
+      require => Exec['cassandra::cql connection test'],
     }
   }
 }

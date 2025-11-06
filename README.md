@@ -51,7 +51,7 @@ You can use [puppetlabs/java](https://github.com/puppetlabs/puppetlabs-java) mod
 
 On Debian systems there's a soft dependency on [puppetlabs/apt](https://github.com/puppetlabs/puppetlabs-apt) module.
 
-When using `cassandra::schema` resources you also need a compatible version of Python installed.
+When using `cassandra::cql` resources you also need a compatible version of Python installed.
 
 ### Beginning with Cassandra
 
@@ -138,7 +138,7 @@ class { 'cassandra':
   ...
 }
 
-class { 'cassandra::schema':
+class { 'cassandra::cql':
   cqlsh_password => 'cassandra',
   cqlsh_user     => 'cassandra',
   cqlsh_host     => $facts['networking']['ip'],

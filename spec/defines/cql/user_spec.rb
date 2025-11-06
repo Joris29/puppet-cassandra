@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'cassandra::schema::user' do
+describe 'cassandra::cql::user' do
   on_supported_os.each do |os, facts|
     context "on #{os}" do
       let(:facts) do
@@ -25,11 +25,11 @@ describe 'cassandra::schema::user' do
 
         it do
           is_expected.to compile.with_all_deps
-          is_expected.to contain_class('cassandra::schema')
+          is_expected.to contain_class('cassandra::cql')
           is_expected.to contain_exec('Create user (akers)').with(
             command: exec_command,
             unless: read_command,
-            require: 'Exec[cassandra::schema connection test]'
+            require: 'Exec[cassandra::cql connection test]'
           )
         end
       end
@@ -53,7 +53,7 @@ describe 'cassandra::schema::user' do
           is_expected.to contain_exec('Create user (bob)').with(
             command: exec_command,
             unless: read_command,
-            require: 'Exec[cassandra::schema connection test]'
+            require: 'Exec[cassandra::cql connection test]'
           )
         end
       end
@@ -75,7 +75,7 @@ describe 'cassandra::schema::user' do
           is_expected.to contain_exec('Delete user (akers)').with(
             command: exec_command,
             onlyif: read_command,
-            require: 'Exec[cassandra::schema connection test]'
+            require: 'Exec[cassandra::cql connection test]'
           )
         end
       end

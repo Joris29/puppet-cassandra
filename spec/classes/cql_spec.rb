@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'cassandra::schema' do
+describe 'cassandra::cql' do
   on_supported_os.each do |os, facts|
     context "on #{os}" do
       let(:facts) do
@@ -15,7 +15,7 @@ describe 'cassandra::schema' do
         read_command = "/usr/bin/cqlsh   -e 'DESC KEYSPACES' localhost 9042"
 
         it do
-          is_expected.to contain_exec('cassandra::schema connection test').with(
+          is_expected.to contain_exec('cassandra::cql connection test').with(
             command: read_command,
             returns: 0,
             tries: 6,
@@ -45,9 +45,9 @@ describe 'cassandra::schema' do
             mode: '0600',
             owner: 0,
             content: %r{username = cassandra}
-          ).that_comes_before('Exec[cassandra::schema connection test]')
+          ).that_comes_before('Exec[cassandra::cql connection test]')
 
-          is_expected.to contain_exec('cassandra::schema connection test').with(
+          is_expected.to contain_exec('cassandra::cql connection test').with(
             command: read_command,
             returns: 0,
             tries: 6,
@@ -74,7 +74,7 @@ describe 'cassandra::schema' do
             content: %r{password = topsecret}
           )
 
-          is_expected.to contain_exec('cassandra::schema connection test').with(
+          is_expected.to contain_exec('cassandra::cql connection test').with(
             command: read_command,
             returns: 0,
             tries: 6,
@@ -94,7 +94,7 @@ describe 'cassandra::schema' do
         read_command = "/usr/bin/cqlsh -u cassandra -p topsecret  -e 'DESC KEYSPACES' localhost 9042"
 
         it do
-          is_expected.to contain_exec('cassandra::schema connection test').with(
+          is_expected.to contain_exec('cassandra::cql connection test').with(
             command: read_command,
             returns: 0,
             tries: 6,
