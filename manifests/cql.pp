@@ -88,34 +88,40 @@ class cassandra::cql (
     unless    => $connection_test,
   }
 
-  # manage keyspaces if present
-  if $keyspaces {
-    create_resources('cassandra::cql::keyspace', $keyspaces)
+  $keyspaces.each | $_keyspace, $_config | {
+    cassandra::cql::keyspace { $_keyspace:
+      * => $_config,
+    }
   }
 
-  # manage cql_types if present
-  if $cql_types {
-    create_resources('cassandra::cql::cql_type', $cql_types)
+  $cql_types.each | $_type, $_config | {
+    cassandra::cql::cql_type { $_type:
+      * => $_config,
+    }
   }
 
-  # manage tables if present
-  if $tables {
-    create_resources('cassandra::cql::table', $tables)
+  $tables.each | $_table, $_config | {
+    cassandra::cql::table { $_table:
+      * => $_config,
+    }
   }
 
-  # manage indexes if present
-  if $indexes {
-    create_resources('cassandra::cql::index', $indexes)
+  $indexes.each | $_index, $_config | {
+    cassandra::cql::index { $_index:
+      * => $_config,
+    }
   }
 
-  # manage users if present
-  if $users {
-    create_resources('cassandra::cql::user', $users)
+  $users.each | $_user, $_config | {
+    cassandra::cql::user { $_user:
+      * => $_config,
+    }
   }
 
-  # manage permissions if present
-  if $permissions {
-    create_resources('cassandra::cql::permission', $permissions)
+  $permissions.each | $_permission, $_config | {
+    cassandra::cql::permission { $_permission:
+      * => $_config,
+    }
   }
 
   # Resource Ordering
