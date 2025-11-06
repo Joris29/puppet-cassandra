@@ -40,7 +40,7 @@ class cassandra::cql (
   Integer $connection_try_sleep = 30,
   Optional[String[1]] $cqlsh_additional_options = undef,
   Optional[Stdlib::Absolutepath] $cqlsh_client_config = undef,
-  String[1] $cqlsh_client_tmpl = 'cassandra/cqlshrc.erb',
+  String[1] $cqlsh_client_tmpl = 'cassandra/cqlshrc.epp',
   Stdlib::Absolutepath $cqlsh_command = '/usr/bin/cqlsh',
   Variant[Stdlib::Host, Enum['localhost']] $cqlsh_host = 'localhost',
   Integer $cqlsh_port = 9042,
@@ -61,7 +61,7 @@ class cassandra::cql (
       group   => $facts['identity']['gid'],
       mode    => '0600',
       owner   => $facts['identity']['uid'],
-      content => template($cqlsh_client_tmpl),
+      content => epp($cqlsh_client_tmpl, { cqlsh_user => $cqlsh_user, cqlsh_password => $cqlsh_password }),
       before  => Exec['cassandra::cql connection test'],
     }
 

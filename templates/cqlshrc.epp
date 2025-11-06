@@ -1,0 +1,5 @@
+; This file is managed by Puppet. Manual changes will be lost.
+
+[authentication]
+username = <%= $cqlsh_user %>
+password = <%= $cqlsh_password %>

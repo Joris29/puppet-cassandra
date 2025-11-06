@@ -532,7 +532,7 @@ Data type: `String[1]`
 
 The location of the template for configuring the credentials for the cqlsh client.
 
-Default value: `'cassandra/cqlshrc.erb'`
+Default value: `'cassandra/cqlshrc.epp'`
 
 ##### <a name="-cassandra--cql--cqlsh_command"></a>`cqlsh_command`
 
